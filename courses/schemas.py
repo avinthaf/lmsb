@@ -27,3 +27,121 @@ class Course:
     deleted_at: Optional[datetime]
     description: Optional[str]
     cover_photo_url: Optional[str]
+    
+@dataclass
+class CreateCourseAuthorInput:
+    course_id: UUID
+    user_id: UUID
+
+@dataclass
+class CourseAuthor:
+    id: UUID
+    course_id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseStatus:
+    id: UUID
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CourseGroup:
+    id: UUID
+    school_id: UUID
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseGroupUser:
+    id: UUID
+    course_group_id: UUID
+    user_id: UUID
+    role_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CoursesCourseGroup:
+    id: UUID
+    course_id: UUID
+    course_group_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseSection:
+    id: UUID
+    course_id: UUID
+    name: str
+    order: int
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseContentType:
+    id: UUID
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CourseContent:
+    id: UUID
+    school_id: UUID
+    course_content_type_id: UUID
+    name: str
+    order: int
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseSectionsCourseContent:
+    id: UUID
+    course_section_id: UUID
+    course_content_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseContentItemType:
+    id: UUID
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CourseContentItem:
+    id: UUID
+    school_id: UUID
+    course_content_item_type_id: UUID
+    order: int
+    ref_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    parent_id: Optional[UUID] = None
+    deleted_at: Optional[datetime] = None
+
+@dataclass
+class CourseContentsCourseContentItem:
+    id: UUID
+    course_content_id: UUID
+    course_content_item_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = None

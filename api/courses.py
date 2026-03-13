@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 from lib.auth import get_user_id_from_token
-from lib.db import db_client
-from courses.schemas import CreateCourseInput
+from courses.workflows import CreateCourseWorkflow
 import uuid
 
 courses_bp = Blueprint('courses', __name__)
@@ -34,19 +33,24 @@ async def create_course():
         if not data.get(field):
             return {"error": f"{field} is required"}, 400
     
-    # Create course
-    response = (
-        db_client.table("courses")
-        .insert({
-            "school_id": data.get('school_id'),
-            "name": data.get('name'),
-            "description": data.get('description'),
-            "category_id": data.get('category_id'),
-            "credits": data.get('credits'),
-            "cover_photo_url": data.get('cover_photo_url'),
-            "url": data.get('url')
-        })
-        .execute()
+    # Start CreateCourseWorkflow
+    client = await _temporal_client()
+    workflow_id = f"create-course-{uuid.uuid4()}"
+    
+    await client.start_workflow(
+        CreateCourseWorkflow.run,
+        args=[
+            user_id,
+            data.get('school_id'),
+            data.get('name'),
+            data.get('category_id'),
+            data.get('credits'),
+            data.get('url'),
+            data.get('description'),
+            data.get('cover_photo_url')
+        ],
+        id=workflow_id,
+        task_queue="main"
     )
-
-    return {"course": response.data[0]}, 200
+    
+    return {"status": "workflow_started", "workflow_id": workflow_id}, 200
