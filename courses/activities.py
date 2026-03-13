@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from temporalio import activity
 from lib.db import db_client
-from .schemas import CreateCourseInput, CreateCourseAuthorInput
+from .schemas import CreateCourseInput, CreateCourseAuthorInput, CreateCourseSectionInput
 
 @activity.defn(name="create_course")
 async def create(input: CreateCourseInput) -> str:
@@ -52,4 +52,30 @@ async def create_author(input: CreateCourseAuthorInput) -> str:
         return author_id
     except Exception as e:
         print(f"[ACTIVITY] create_course_author ERROR: {type(e).__name__}: {e}")
+        raise
+
+@activity.defn(name="create_course_section")
+async def create_section(input: CreateCourseSectionInput) -> str:
+    print(f"[ACTIVITY] create_course_section started with input: {input}")
+    try:
+        # Build insert data with required fields
+        insert_data = {
+            "course_id": str(input.course_id),
+        }
+        
+        # Only add optional fields if they are not None
+        if input.name is not None:
+            insert_data["name"] = input.name
+        if input.order is not None:
+            insert_data["order"] = input.order
+        
+        response = db_client.table("course_sections").insert(insert_data).execute()
+        
+        print(f"[ACTIVITY] create_course_section DB response: {response.data}")
+        # Return the section ID from the created record
+        section_id = response.data[0]['id']
+        print(f"[ACTIVITY] create_course_section completed, section_id: {section_id}")
+        return section_id
+    except Exception as e:
+        print(f"[ACTIVITY] create_course_section ERROR: {type(e).__name__}: {e}")
         raise

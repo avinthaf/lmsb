@@ -2,7 +2,7 @@ from datetime import timedelta
 from temporalio import workflow
 
 with workflow.unsafe.imports_passed_through():
-    from .schemas import CreateCourseInput, CreateCourseAuthorInput
+    from .schemas import CreateCourseInput, CreateCourseAuthorInput, CreateCourseSectionInput
 
 @workflow.defn(name="CreateCourseWorkflow")
 class CreateCourseWorkflow:
@@ -35,4 +35,16 @@ class CreateCourseWorkflow:
             start_to_close_timeout=timedelta(seconds=10),
         )
         
-        return f"Created course {course_result} with author {user_id}"
+        # Step 3: Create an untitled course section
+        section_input = CreateCourseSectionInput(
+            course_id=course_result,
+            name=None,  # Untitled section
+            order=None  # Will be auto-assigned by database
+        )
+        section_result = await workflow.execute_activity(
+            "create_course_section",
+            section_input,
+            start_to_close_timeout=timedelta(seconds=10),
+        )
+        
+        return f"Created course {course_result} with author {user_id} and section {section_result}"

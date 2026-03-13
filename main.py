@@ -14,7 +14,6 @@ import asyncio
 from typing import Dict, List
 
 app = Flask(__name__)
-CORS(app)
 
 # Initialize Temporal client (will be set on first use)
 _temporal_client = None
@@ -49,6 +48,15 @@ init_courses(ROLES_CACHE, get_temporal_client)
 
 # Register all API blueprints
 register_blueprints(app)
+
+# Apply CORS after registering blueprints
+CORS(app, 
+     origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     expose_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
 
 @app.route("/")
 def hello_world():

@@ -26,6 +26,7 @@ async def main():
             org_activities.create_member,
             course_activities.create,
             course_activities.create_author,
+            course_activities.create_section,
         ],
     )
     print("Worker started, listening on task queue: main")

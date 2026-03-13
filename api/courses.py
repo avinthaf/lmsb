@@ -15,6 +15,18 @@ def init_courses(roles_cache, temporal_client_getter):
     global ROLES_CACHE, _temporal_client
     ROLES_CACHE = roles_cache
     _temporal_client = temporal_client_getter
+
+def is_course_author(user_id: str, course_id: str) -> bool:
+    """Check if user is an author of the course"""
+    response = (
+        db_client.table("course_authors")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("course_id", course_id)
+        .is_("deleted_at", "null")
+        .execute()
+    )
+    return len(response.data) > 0
     
 @courses_bp.route("/courses", methods=["POST"])
 async def create_course():
@@ -57,6 +69,30 @@ async def create_course():
     
     return {"status": "workflow_started", "workflow_id": workflow_id}, 200
 
+@courses_bp.route("/courses/<course_id>", methods=["GET"])
+async def get_course(course_id):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return {"error": "Authorization header missing"}, 401
+    
+    user_id = get_user_id_from_token(auth_header)
+    if not user_id:
+        return {"error": "Invalid or expired token"}, 401
+    
+    # Fetch course by ID
+    response = (
+        db_client.table("courses")
+        .select("*")
+        .eq("id", course_id)
+        .is_("deleted_at", "null")
+        .execute()
+    )
+    
+    if not response.data:
+        return {"error": "Course not found"}, 404
+    
+    return {"course": response.data[0]}, 200
+
 @courses_bp.route("/courses/<course_id>/sections", methods=["POST"])
 async def create_course_section(course_id):
     auth_header = request.headers.get('Authorization')
@@ -66,6 +102,10 @@ async def create_course_section(course_id):
     user_id = get_user_id_from_token(auth_header)
     if not user_id:
         return {"error": "Invalid or expired token"}, 401
+    
+    # Check if user is a course author
+    if not is_course_author(user_id, course_id):
+        return {"error": "Unauthorized: You must be a course author"}, 403
     
     # Get request body
     data = request.get_json()
@@ -94,6 +134,10 @@ async def update_course_section(course_id, section_id):
     user_id = get_user_id_from_token(auth_header)
     if not user_id:
         return {"error": "Invalid or expired token"}, 401
+    
+    # Check if user is a course author
+    if not is_course_author(user_id, course_id):
+        return {"error": "Unauthorized: You must be a course author"}, 403
     
     # Get request body
     data = request.get_json()
@@ -132,6 +176,10 @@ async def delete_course_section(course_id, section_id):
     user_id = get_user_id_from_token(auth_header)
     if not user_id:
         return {"error": "Invalid or expired token"}, 401
+    
+    # Check if user is a course author
+    if not is_course_author(user_id, course_id):
+        return {"error": "Unauthorized: You must be a course author"}, 403
     
     # Soft delete by setting deleted_at timestamp
     response = (
