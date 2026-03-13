@@ -102,9 +102,27 @@ class CourseSection:
     order: Optional[int] = None
 
 @dataclass
-class CourseContentType:
+class CourseContentTypeType:
     id: UUID
     name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CourseContentTypeSubtype:
+    id: UUID
+    name: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+@dataclass
+class CourseContentType:
+    id: UUID
+    label: str
+    type_id: UUID
+    subtype_id: UUID
     description: str
     created_at: datetime
     updated_at: datetime

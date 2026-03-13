@@ -216,3 +216,23 @@ async def get_course_sections(course_id):
     )
     
     return {"sections": response.data}, 200
+
+@courses_bp.route("/course-content-types", methods=["GET"])
+async def get_course_content_types():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return {"error": "Authorization header missing"}, 401
+    
+    user_id = get_user_id_from_token(auth_header)
+    if not user_id:
+        return {"error": "Invalid or expired token"}, 401
+    
+    # Fetch all course content types
+    response = (
+        db_client.table("course_content_types")
+        .select("*")
+        .order("name")
+        .execute()
+    )
+    
+    return {"course_content_types": response.data}, 200
