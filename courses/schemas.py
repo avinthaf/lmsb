@@ -92,6 +92,18 @@ class UpdateCourseSectionInput:
     order: Optional[int] = None
 
 @dataclass
+class CreateCourseContentInput:
+    school_id: str
+    course_content_type_id: str
+    name: str
+    order: int
+    section_id: str
+
+@dataclass
+class DeleteCourseContentInput:
+    content_id: str
+
+@dataclass
 class CourseSection:
     id: UUID
     course_id: UUID

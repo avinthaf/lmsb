@@ -5,7 +5,7 @@ from temporalio import workflow
 
 with workflow.unsafe.imports_passed_through():
     from workflows import CreatePlatformUserWorkflow, CreateOrganizationWorkflow
-    from courses.workflows import CreateCourseWorkflow
+    from courses.workflows import CreateCourseWorkflow, CreateCourseContentWorkflow, DeleteCourseContentWorkflow
     from platform_users import activities
     from organizations import activities as org_activities
     from courses import activities as course_activities
@@ -19,6 +19,8 @@ async def main():
             CreatePlatformUserWorkflow,
             CreateOrganizationWorkflow,
             CreateCourseWorkflow,
+            CreateCourseContentWorkflow,
+            DeleteCourseContentWorkflow,
         ],
         activities=[
             activities.create,
@@ -27,6 +29,10 @@ async def main():
             course_activities.create,
             course_activities.create_author,
             course_activities.create_section,
+            course_activities.create_content,
+            course_activities.link_content_to_section,
+            course_activities.delete_content,
+            course_activities.delete_content_links,
         ],
     )
     print("Worker started, listening on task queue: main")
