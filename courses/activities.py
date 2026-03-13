@@ -7,19 +7,23 @@ from .schemas import CreateCourseInput, CreateCourseAuthorInput
 async def create(input: CreateCourseInput) -> str:
     print(f"[ACTIVITY] create_course started with input: {input}")
     try:
-        response = (
-            db_client.table("courses")
-            .insert({
-                "school_id": input.school_id,
-                "name": input.name,
-                "category_id": input.category_id,
-                "credits": input.credits,
-                "url": input.url,
-                "description": input.description,
-                "cover_photo_url": input.cover_photo_url
-            })
-            .execute()
-        )
+        # Build insert data, filtering out None values to allow database defaults
+        insert_data = {
+            "school_id": input.school_id,
+            "name": input.name,
+            "category_id": input.category_id,
+            "credits": input.credits,
+            "url": input.url,
+        }
+        
+        # Only add optional fields if they are not None
+        if input.description is not None:
+            insert_data["description"] = input.description
+        if input.cover_photo_url is not None:
+            insert_data["cover_photo_url"] = input.cover_photo_url
+        
+        response = db_client.table("courses").insert(insert_data).execute()
+        
         print(f"[ACTIVITY] create_course DB response: {response.data}")
         # Return the course ID from the created record
         course_id = response.data[0]['id']

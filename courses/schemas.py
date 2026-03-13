@@ -80,14 +80,26 @@ class CoursesCourseGroup:
     deleted_at: Optional[datetime] = None
 
 @dataclass
+class CreateCourseSectionInput:
+    course_id: UUID
+    name: Optional[str] = None
+    order: Optional[int] = None
+
+@dataclass
+class UpdateCourseSectionInput:
+    section_id: UUID
+    name: Optional[str] = None
+    order: Optional[int] = None
+
+@dataclass
 class CourseSection:
     id: UUID
     course_id: UUID
-    name: str
-    order: int
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
+    name: Optional[str] = None
+    order: Optional[int] = None
 
 @dataclass
 class CourseContentType:
