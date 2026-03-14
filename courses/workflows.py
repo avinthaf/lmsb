@@ -52,13 +52,14 @@ class CreateCourseWorkflow:
 @workflow.defn(name="CreateCourseContentWorkflow")
 class CreateCourseContentWorkflow:
     @workflow.run
-    async def run(self, school_id: str, course_content_type_id: str, name: str, order: int, section_id: str) -> str:
+    async def run(self, school_id: str, course_content_type_id: str, name: str, order: int, ref_id: str, section_id: str) -> str:
         # Step 1: Create the course content
         content_input = CreateCourseContentInput(
             school_id=school_id,
             course_content_type_id=course_content_type_id,
             name=name,
             order=order,
+            ref_id=ref_id,
             section_id=section_id
         )
         content_result = await workflow.execute_activity(

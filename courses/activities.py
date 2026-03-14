@@ -89,7 +89,8 @@ async def create_content(input: CreateCourseContentInput) -> str:
             "school_id": input.school_id,
             "course_content_type_id": input.course_content_type_id,
             "name": input.name,
-            "order": input.order
+            "order": input.order,
+            "ref_id": input.ref_id
         }
         
         response = db_client.table("course_contents").insert(insert_data).execute()

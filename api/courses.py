@@ -69,6 +69,26 @@ async def create_course():
     
     return {"status": "workflow_started", "workflow_id": workflow_id}, 200
 
+@courses_bp.route("/courses/content-types", methods=["GET"])
+async def get_course_content_types():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return {"error": "Authorization header missing"}, 401
+    
+    user_id = get_user_id_from_token(auth_header)
+    if not user_id:
+        return {"error": "Invalid or expired token"}, 401
+    
+    # Fetch all course content types
+    response = (
+        db_client.table("course_content_types")
+        .select("*")
+        .order("label")
+        .execute()
+    )
+    
+    return {"course_content_types": response.data}, 200
+
 @courses_bp.route("/courses/<course_id>", methods=["GET"])
 async def get_course(course_id):
     auth_header = request.headers.get('Authorization')
@@ -235,7 +255,7 @@ async def create_course_content(course_id, section_id):
     data = request.get_json()
     
     # Validate required fields
-    required_fields = ['school_id', 'course_content_type_id', 'name', 'order']
+    required_fields = ['school_id', 'course_content_type_id', 'name', 'order', 'ref_id']
     for field in required_fields:
         if not data.get(field):
             return {"error": f"{field} is required"}, 400
@@ -251,6 +271,7 @@ async def create_course_content(course_id, section_id):
             data.get('course_content_type_id'),
             data.get('name'),
             data.get('order'),
+            data.get('ref_id'),
             section_id
         ],
         id=workflow_id,
@@ -326,24 +347,4 @@ async def delete_course_content(course_id, section_id, content_id):
     )
     
     return {"status": "workflow_started", "workflow_id": workflow_id, "message": "Content and associated links are being deleted"}, 200
-
-@courses_bp.route("/course-content-types", methods=["GET"])
-async def get_course_content_types():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return {"error": "Authorization header missing"}, 401
-    
-    user_id = get_user_id_from_token(auth_header)
-    if not user_id:
-        return {"error": "Invalid or expired token"}, 401
-    
-    # Fetch all course content types
-    response = (
-        db_client.table("course_content_types")
-        .select("*")
-        .order("name")
-        .execute()
-    )
-    
-    return {"course_content_types": response.data}, 200
 

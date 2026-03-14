@@ -11,9 +11,6 @@ from .schemas import (
     CourseContentType,
     CourseContent,
     CourseSectionsCourseContent,
-    CourseContentItemType,
-    CourseContentItem,
-    CourseContentsCourseContentItem
 )
 
 __all__ = [
@@ -28,8 +25,5 @@ __all__ = [
     'CourseSection',
     'CourseContentType',
     'CourseContent',
-    'CourseSectionsCourseContent',
-    'CourseContentItemType',
-    'CourseContentItem',
-    'CourseContentsCourseContentItem'
+    'CourseSectionsCourseContent'
 ]

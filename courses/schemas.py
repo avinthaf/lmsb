@@ -97,6 +97,7 @@ class CreateCourseContentInput:
     course_content_type_id: str
     name: str
     order: int
+    ref_id: str
     section_id: str
 
 @dataclass
@@ -146,6 +147,7 @@ class CourseContent:
     course_content_type_id: UUID
     name: str
     order: int
+    ref_id: UUID #This will point to an assessment, lesson...etc.
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
@@ -155,25 +157,6 @@ class CourseSectionsCourseContent:
     id: UUID
     course_section_id: UUID
     course_content_id: UUID
-    created_at: datetime
-    updated_at: datetime
-    deleted_at: Optional[datetime] = None
-
-@dataclass
-class CourseContentItem:
-    id: UUID
-    school_id: UUID
-    order: int
-    ref_id: UUID
-    created_at: datetime
-    updated_at: datetime
-    deleted_at: Optional[datetime] = None
-
-@dataclass
-class CourseContentsCourseContentItem:
-    id: UUID
-    course_content_id: UUID
-    course_content_item_id: UUID
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
