@@ -3,7 +3,7 @@ from temporalio import activity
 from lib.db import db_client
 from datetime import datetime
 from typing import Dict
-from .schemas import CreateCourseInput, CreateCourseAuthorInput, CreateCourseSectionInput, CreateCourseContentInput, DeleteCourseContentInput
+from .schemas import CreateCourseInput, CreateCourseAuthorInput, CreateCourseSectionInput, CreateCourseContentInput, DeleteCourseContentInput, DeleteCourseSectionInput
 
 @activity.defn(name="create_course")
 async def create(input: CreateCourseInput) -> str:
@@ -178,4 +178,41 @@ async def update_content_ref_id(input: dict) -> str:
         return f"Updated course content {input['content_id']} with ref_id {input['ref_id']}"
     except Exception as e:
         print(f"[ACTIVITY] update_course_content_ref_id ERROR: {type(e).__name__}: {e}")
+        raise
+
+@activity.defn(name="delete_course_section")
+async def delete_section(input: DeleteCourseSectionInput) -> str:
+    print(f"[ACTIVITY] delete_course_section started with input: {input}")
+    try:
+        response = (
+            db_client.table("course_sections")
+            .update({"deleted_at": datetime.utcnow().isoformat()})
+            .eq("id", input.section_id)
+            .execute()
+        )
+        
+        print(f"[ACTIVITY] delete_course_section DB response: {response.data}")
+        print(f"[ACTIVITY] delete_course_section completed, section_id: {input.section_id}")
+        return input.section_id
+    except Exception as e:
+        print(f"[ACTIVITY] delete_course_section ERROR: {type(e).__name__}: {e}")
+        raise
+
+@activity.defn(name="delete_course_section_content_links")
+async def delete_section_content_links(input: DeleteCourseSectionInput) -> str:
+    print(f"[ACTIVITY] delete_course_section_content_links started with input: {input}")
+    try:
+        response = (
+            db_client.table("course_sections_course_contents")
+            .update({"deleted_at": datetime.utcnow().isoformat()})
+            .eq("course_section_id", input.section_id)
+            .execute()
+        )
+        
+        print(f"[ACTIVITY] delete_course_section_content_links DB response: {response.data}")
+        affected_count = len(response.data) if response.data else 0
+        print(f"[ACTIVITY] delete_course_section_content_links completed, affected {affected_count} links")
+        return f"Deleted {affected_count} links"
+    except Exception as e:
+        print(f"[ACTIVITY] delete_course_section_content_links ERROR: {type(e).__name__}: {e}")
         raise

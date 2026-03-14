@@ -9,7 +9,8 @@ with workflow.unsafe.imports_passed_through():
         CreateOrganizationWorkflow,
         CreateCourseWorkflow,
         CreateCourseContentWorkflow,
-        DeleteCourseContentWorkflow
+        DeleteCourseContentWorkflow,
+        DeleteCourseSectionWorkflow
     )
     from platform_users import activities
     from organizations import activities as org_activities
@@ -27,6 +28,7 @@ async def main():
             CreateCourseWorkflow,
             CreateCourseContentWorkflow,
             DeleteCourseContentWorkflow,
+            DeleteCourseSectionWorkflow,
         ],
         activities=[
             activities.create,
@@ -40,6 +42,8 @@ async def main():
             course_activities.delete_content,
             course_activities.delete_content_links,
             course_activities.update_content_ref_id,
+            course_activities.delete_section,
+            course_activities.delete_section_content_links,
             assessment_activities.create,
         ],
     )

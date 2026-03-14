@@ -16,6 +16,7 @@ class Assessment:
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
+    description: Optional[str] = None
 
 @dataclass
 class AssessmentQuestion:

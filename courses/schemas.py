@@ -104,6 +104,10 @@ class DeleteCourseContentInput:
     content_id: str
 
 @dataclass
+class DeleteCourseSectionInput:
+    section_id: str
+
+@dataclass
 class CourseSection:
     id: UUID
     course_id: UUID
@@ -152,7 +156,7 @@ class CourseContent:
     deleted_at: Optional[datetime] = None
 
 @dataclass
-class CourseSectionsCourseContent:
+class CourseSectionsCourseContents:
     id: UUID
     course_section_id: UUID
     course_content_id: UUID

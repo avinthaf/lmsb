@@ -10,7 +10,7 @@ from .schemas import (
     CourseSection,
     CourseContentType,
     CourseContent,
-    CourseSectionsCourseContent,
+    CourseSectionsCourseContents,
 )
 
 __all__ = [
@@ -25,5 +25,5 @@ __all__ = [
     'CourseSection',
     'CourseContentType',
     'CourseContent',
-    'CourseSectionsCourseContent'
+    'CourseSectionsCourseContents'
 ]

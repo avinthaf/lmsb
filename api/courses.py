@@ -201,19 +201,18 @@ async def delete_course_section(course_id, section_id):
     if not is_course_author(user_id, course_id):
         return {"error": "Unauthorized: You must be a course author"}, 403
     
-    # Soft delete by setting deleted_at timestamp
-    response = (
-        db_client.table("course_sections")
-        .update({"deleted_at": datetime.utcnow().isoformat()})
-        .eq("id", section_id)
-        .eq("course_id", course_id)
-        .execute()
+    # Start DeleteCourseSectionWorkflow
+    client = await _temporal_client()
+    workflow_id = f"delete-course-section-{uuid.uuid4()}"
+    
+    await client.start_workflow(
+        "DeleteCourseSectionWorkflow",
+        args=[section_id],
+        id=workflow_id,
+        task_queue="main"
     )
     
-    if not response.data:
-        return {"error": "Section not found"}, 404
-    
-    return {"message": "Section deleted successfully", "section_id": section_id}, 200
+    return {"status": "workflow_started", "workflow_id": workflow_id}, 200
 
 @courses_bp.route("/courses/<course_id>/sections", methods=["GET"])
 async def get_course_sections(course_id):
@@ -293,6 +292,30 @@ async def create_course_content(course_id, section_id):
     )
     
     return {"status": "workflow_started", "workflow_id": workflow_id}, 200
+
+@courses_bp.route("/courses/<course_id>/sections/<section_id>/contents", methods=["GET"])
+async def get_course_section_contents(course_id, section_id):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return {"error": "Authorization header missing"}, 401
+    
+    user_id = get_user_id_from_token(auth_header)
+    if not user_id:
+        return {"error": "Invalid or expired token"}, 401
+    
+    # Fetch course contents for the section via the junction table
+    response = (
+        db_client.table("course_sections_course_contents")
+        .select("course_contents(*)")
+        .eq("course_section_id", section_id)
+        .is_("deleted_at", "null")
+        .execute()
+    )
+    
+    # Extract the nested course_contents data
+    contents = [item['course_contents'] for item in response.data if item.get('course_contents')]
+    
+    return {"contents": contents}, 200
 
 @courses_bp.route("/courses/<course_id>/sections/<section_id>/contents/<content_id>", methods=["PUT"])
 async def update_course_content(course_id, section_id, content_id):
