@@ -160,23 +160,13 @@ class CourseSectionsCourseContent:
     deleted_at: Optional[datetime] = None
 
 @dataclass
-class CourseContentItemType:
-    id: UUID
-    name: str
-    description: str
-    created_at: datetime
-    updated_at: datetime
-
-@dataclass
 class CourseContentItem:
     id: UUID
     school_id: UUID
-    course_content_item_type_id: UUID
     order: int
     ref_id: UUID
     created_at: datetime
     updated_at: datetime
-    parent_id: Optional[UUID] = None
     deleted_at: Optional[datetime] = None
 
 @dataclass
