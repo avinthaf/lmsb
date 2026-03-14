@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from temporalio import activity
 from lib.db import db_client
 from datetime import datetime
+from typing import Dict
 from .schemas import CreateCourseInput, CreateCourseAuthorInput, CreateCourseSectionInput, CreateCourseContentInput, DeleteCourseContentInput
 
 @activity.defn(name="create_course")
@@ -159,4 +160,22 @@ async def delete_content_links(input: DeleteCourseContentInput) -> str:
         return f"Deleted {affected_count} links"
     except Exception as e:
         print(f"[ACTIVITY] delete_course_content_links ERROR: {type(e).__name__}: {e}")
+        raise
+
+@activity.defn(name="update_course_content_ref_id")
+async def update_content_ref_id(input: dict) -> str:
+    print(f"[ACTIVITY] update_course_content_ref_id started with input: {input}")
+    try:
+        response = (
+            db_client.table("course_contents")
+            .update({"ref_id": input["ref_id"]})
+            .eq("id", input["content_id"])
+            .execute()
+        )
+        
+        print(f"[ACTIVITY] update_course_content_ref_id DB response: {response.data}")
+        print(f"[ACTIVITY] update_course_content_ref_id completed")
+        return f"Updated course content {input['content_id']} with ref_id {input['ref_id']}"
+    except Exception as e:
+        print(f"[ACTIVITY] update_course_content_ref_id ERROR: {type(e).__name__}: {e}")
         raise

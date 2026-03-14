@@ -14,6 +14,7 @@ with workflow.unsafe.imports_passed_through():
     from platform_users import activities
     from organizations import activities as org_activities
     from courses import activities as course_activities
+    from assessments import activities as assessment_activities
 
 async def main():
     client = await Client.connect("localhost:7233")
@@ -38,6 +39,8 @@ async def main():
             course_activities.link_content_to_section,
             course_activities.delete_content,
             course_activities.delete_content_links,
+            course_activities.update_content_ref_id,
+            assessment_activities.create,
         ],
     )
     print("Worker started, listening on task queue: main")

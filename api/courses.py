@@ -260,6 +260,20 @@ async def create_course_content(course_id, section_id):
         if not data.get(field):
             return {"error": f"{field} is required"}, 400
     
+    # Fetch course content type to determine if we need to create an assessment
+    content_type_response = (
+        db_client.table("course_content_types")
+        .select("label")
+        .eq("id", data.get('course_content_type_id'))
+        .execute()
+    )
+    
+    if not content_type_response.data:
+        return {"error": "Invalid course_content_type_id"}, 400
+    
+    content_type_label = content_type_response.data[0]['label']
+    print(f"[API] create_course_content - content_type_label: '{content_type_label}'")
+    
     # Start CreateCourseContentWorkflow
     client = await _temporal_client()
     workflow_id = f"create-course-content-{uuid.uuid4()}"
@@ -271,6 +285,7 @@ async def create_course_content(course_id, section_id):
             data.get('course_content_type_id'),
             data.get('name'),
             section_id,
+            content_type_label,  # Pass label to determine if assessment should be created
             data.get('order')  # Optional, will be auto-assigned if None
         ],
         id=workflow_id,

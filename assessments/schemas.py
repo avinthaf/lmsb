@@ -4,6 +4,11 @@ from datetime import datetime
 from typing import Optional
 
 @dataclass
+class CreateAssessmentInput:
+    school_id: str
+    name: str
+
+@dataclass
 class Assessment:
     id: UUID
     school_id: UUID
