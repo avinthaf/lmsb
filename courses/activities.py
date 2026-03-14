@@ -88,10 +88,12 @@ async def create_content(input: CreateCourseContentInput) -> str:
         insert_data = {
             "school_id": input.school_id,
             "course_content_type_id": input.course_content_type_id,
-            "name": input.name,
-            "order": input.order,
-            "ref_id": input.ref_id
+            "name": input.name
         }
+        
+        # Only include order if it's provided
+        if input.order is not None:
+            insert_data["order"] = input.order
         
         response = db_client.table("course_contents").insert(insert_data).execute()
         

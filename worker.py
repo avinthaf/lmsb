@@ -4,8 +4,13 @@ from temporalio.worker import Worker
 from temporalio import workflow
 
 with workflow.unsafe.imports_passed_through():
-    from workflows import CreatePlatformUserWorkflow, CreateOrganizationWorkflow
-    from courses.workflows import CreateCourseWorkflow, CreateCourseContentWorkflow, DeleteCourseContentWorkflow
+    from workflows import (
+        CreatePlatformUserWorkflow,
+        CreateOrganizationWorkflow,
+        CreateCourseWorkflow,
+        CreateCourseContentWorkflow,
+        DeleteCourseContentWorkflow
+    )
     from platform_users import activities
     from organizations import activities as org_activities
     from courses import activities as course_activities

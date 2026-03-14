@@ -96,9 +96,8 @@ class CreateCourseContentInput:
     school_id: str
     course_content_type_id: str
     name: str
-    order: int
-    ref_id: str
     section_id: str
+    order: Optional[int] = None
 
 @dataclass
 class DeleteCourseContentInput:

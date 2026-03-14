@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 from lib.auth import get_user_id_from_token
 from lib.db import db_client
-from courses.workflows import CreateCourseWorkflow
 from datetime import datetime
 import uuid
 
@@ -79,15 +78,16 @@ async def get_course_content_types():
     if not user_id:
         return {"error": "Invalid or expired token"}, 401
     
-    # Fetch all course content types
+    # Fetch all course content types with nested type and subtype data
     response = (
         db_client.table("course_content_types")
-        .select("*")
+        .select("id, label, description, created_at, updated_at, type:course_content_type_types(id, name), subtype:course_content_type_subtypes(id, name)")
         .order("label")
         .execute()
     )
     
     return {"course_content_types": response.data}, 200
+
 
 @courses_bp.route("/courses/<course_id>", methods=["GET"])
 async def get_course(course_id):
@@ -255,7 +255,7 @@ async def create_course_content(course_id, section_id):
     data = request.get_json()
     
     # Validate required fields
-    required_fields = ['school_id', 'course_content_type_id', 'name', 'order', 'ref_id']
+    required_fields = ['school_id', 'course_content_type_id', 'name']
     for field in required_fields:
         if not data.get(field):
             return {"error": f"{field} is required"}, 400
@@ -270,9 +270,8 @@ async def create_course_content(course_id, section_id):
             data.get('school_id'),
             data.get('course_content_type_id'),
             data.get('name'),
-            data.get('order'),
-            data.get('ref_id'),
-            section_id
+            section_id,
+            data.get('order')  # Optional, will be auto-assigned if None
         ],
         id=workflow_id,
         task_queue="main"
